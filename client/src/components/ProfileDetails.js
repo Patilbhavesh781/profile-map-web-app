@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { getProfileById } from "../api/profileApi";
 
-function ProfileDetails({ profiles }) {
+function ProfileDetails() {
   const { id } = useParams();
-  const profile = profiles.find(p => p.id === parseInt(id));
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const { data } = await getProfileById(id);
+      setProfile(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (!profile) {
     return <h2 className="text-center text-danger">Profile not found</h2>;

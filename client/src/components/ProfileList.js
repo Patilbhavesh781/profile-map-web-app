@@ -1,17 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProfileCard from "./ProfileCard";
+import { getProfiles, deleteProfile } from "../api/profileApi";
 
-function ProfileList({ profiles, setProfiles }) {
+function ProfileList() {
+  const [profiles, setProfiles] = useState([]);
   const [search, setSearch] = useState("");
+
+  // Fetch all profiles from API
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = async () => {
+    try {
+      const { data } = await getProfiles();
+      setProfiles(data);
+    } catch (error) {
+      console.error("Failed to fetch profiles:", error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (id) => {
+    try {
+      await deleteProfile(id);
+      fetchProfiles();
+    } catch (error) {
+      console.error("Failed to delete profile:", error);
+    }
+  };
 
   const filteredProfiles = profiles.filter(profile =>
     profile.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  const handleDelete = id => {
-    setProfiles(profiles.filter(profile => profile.id !== id));
-  };
 
   return (
     <div className="container mt-4">
@@ -25,7 +47,10 @@ function ProfileList({ profiles, setProfiles }) {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <button className="btn btn-outline-primary" onClick={() => setSearch("")}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => setSearch("")}
+        >
           Clear
         </button>
       </div>
@@ -37,9 +62,9 @@ function ProfileList({ profiles, setProfiles }) {
       <div className="row">
         {filteredProfiles.map(profile => (
           <ProfileCard
-            key={profile.id}
+            key={profile._id}
             profile={profile}
-            onDelete={handleDelete}
+            onDelete={handleDelete} // Pass the local handler
           />
         ))}
       </div>

@@ -1,53 +1,77 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { addProfile, getProfileById, updateProfile } from "../api/profileApi";
 
-function AddEditProfile({ profiles, setProfiles }) {
+function AddEditProfile() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const isEdit = !!id;
-
-  const profileToEdit = isEdit
-    ? profiles.find(p => p.id === parseInt(id))
-    : {};
+  const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
-    name: profileToEdit?.name || "",
-    age: profileToEdit?.age || "",
-    job: profileToEdit?.job || "",
-    salary: profileToEdit?.salary || "",
-    hobbies: profileToEdit?.hobbies || "",
-    location: profileToEdit?.location || "",
-    photo: profileToEdit?.photo || "",
-    description: profileToEdit?.description || "",
-    lat: profileToEdit?.lat || "",
-    lng: profileToEdit?.lng || ""
+    name: "",
+    age: "",
+    job: "",
+    salary: "",
+    hobbies: "",
+    location: "",
+    photo: "",
+    description: "",
+    lat: "",
+    lng: ""
   });
 
-  const handleSubmit = e => {
+  /* ===============================
+     FETCH PROFILE FOR EDIT
+  ================================ */
+  useEffect(() => {
+    if (isEdit) {
+      fetchProfile();
+    }
+  }, [isEdit, id]);
+
+  const fetchProfile = async () => {
+    try {
+      const { data } = await getProfileById(id);
+      setForm({
+        name: data.name || "",
+        age: data.age || "",
+        job: data.job || "",
+        salary: data.salary || "",
+        hobbies: data.hobbies || "",
+        location: data.location || "",
+        photo: data.photo || "",
+        description: data.description || "",
+        lat: data.lat || "",
+        lng: data.lng || ""
+      });
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+  };
+
+  /* ===============================
+     SUBMIT HANDLER
+  ================================ */
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const updatedForm = {
+    const payload = {
       ...form,
+      age: Number(form.age),
       lat: parseFloat(form.lat),
       lng: parseFloat(form.lng)
     };
 
-    if (isEdit) {
-      setProfiles(
-        profiles.map(profile =>
-          profile.id === parseInt(id)
-            ? { ...profile, ...updatedForm }
-            : profile
-        )
-      );
-    } else {
-      setProfiles([
-        ...profiles,
-        { id: profiles.length + 1, ...updatedForm }
-      ]);
+    try {
+      if (isEdit) {
+        await updateProfile(id, payload);
+      } else {
+        await addProfile(payload);
+      }
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to save profile:", error);
     }
-
-    navigate("/");
   };
 
   return (
@@ -122,7 +146,6 @@ function AddEditProfile({ profiles, setProfiles }) {
           required
         />
 
-        {/* NEW: Latitude */}
         <input
           type="number"
           step="any"
@@ -130,10 +153,8 @@ function AddEditProfile({ profiles, setProfiles }) {
           placeholder="Latitude (e.g. 18.5204)"
           value={form.lat}
           onChange={e => setForm({ ...form, lat: e.target.value })}
-          
         />
 
-        {/* NEW: Longitude */}
         <input
           type="number"
           step="any"
@@ -141,7 +162,6 @@ function AddEditProfile({ profiles, setProfiles }) {
           placeholder="Longitude (e.g. 73.8567)"
           value={form.lng}
           onChange={e => setForm({ ...form, lng: e.target.value })}
-          
         />
 
         <button type="submit" className="btn btn-success w-100">

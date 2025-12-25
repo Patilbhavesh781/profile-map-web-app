@@ -16,15 +16,23 @@ function ProfileCard({ profile, onDelete }) {
           <h5 className="fw-bold">{profile.location}</h5>
           <p className="text-muted">{profile.job}</p>
 
-          <Link to={`/profile/${profile.id}`} className="btn btn-primary btn-sm">
+          <Link
+            to={`/profile/${profile._id}`}
+            className="btn btn-primary btn-sm"
+          >
             View Details
           </Link>
-          <Link to={`/edit/${profile.id}`} className="btn btn-warning btn-sm ms-2">
+
+          <Link
+            to={`/edit/${profile._id}`}
+            className="btn btn-warning btn-sm ms-2"
+          >
             Edit
           </Link>
+
           <button
             className="btn btn-danger btn-sm ms-2"
-            onClick={() => onDelete(profile.id)}
+            onClick={() => onDelete(profile._id)}
           >
             Delete
           </button>

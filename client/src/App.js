@@ -1,21 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ProfileList from "./components/ProfileList";
 import ProfileDetails from "./components/ProfileDetails";
 import AddEditProfile from "./components/AddEditProfile";
-import initialProfiles from "./data/profiles";
 
 function App() {
-  const [profiles, setProfiles] = useState(initialProfiles);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setLoading(false); // Profiles are fetched inside ProfileList now
+  }, []);
+
+  if (loading) return <h3 className="text-center mt-5">Loading...</h3>;
+  if (error) return <h3 className="text-center text-danger">{error}</h3>;
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ProfileList profiles={profiles} setProfiles={setProfiles} />} />
-        <Route path="/profile/:id" element={<ProfileDetails profiles={profiles} />} />
-        <Route path="/add" element={<AddEditProfile profiles={profiles} setProfiles={setProfiles} />} />
-        <Route path="/edit/:id" element={<AddEditProfile profiles={profiles} setProfiles={setProfiles} />} />
+        <Route path="/" element={<ProfileList />} />
+
+        <Route path="/profile/:id" element={<ProfileDetails />} />
+
+        <Route path="/add" element={<AddEditProfile />} />
+
+        <Route path="/edit/:id" element={<AddEditProfile />} />
       </Routes>
     </BrowserRouter>
   );
