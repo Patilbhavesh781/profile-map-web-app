@@ -80,7 +80,7 @@ function ProfileDetails({ profiles }) {
           width="100%"
           height="400"
           title="Profile Location Map"
-          src={`https://maps.google.com/maps?q=${profile.lat},${profile.lng}&hl=es&z=14&output=embed`}
+          src={`https://maps.google.com/maps?q=${profile.lat},${profile.lng}&hl=en&z=14&output=embed`}
           allowFullScreen
           loading="lazy"
         ></iframe>
