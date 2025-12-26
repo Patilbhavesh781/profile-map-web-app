@@ -5,23 +5,29 @@ import { getProfileById } from "../api/profileApi";
 function ProfileDetails() {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [id]);
 
   const fetchProfile = async () => {
+    setLoading(true);
+    setError("");
     try {
       const { data } = await getProfileById(id);
       setProfile(data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      setError("Profile not found");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!profile) {
-    return <h2 className="text-center text-danger">Profile not found</h2>;
-  }
+  if (loading) return <h3 className="text-center mt-5">Loading...</h3>;
+  if (error) return <h2 className="text-center text-danger">{error}</h2>;
 
   return (
     <div className="container mt-4">

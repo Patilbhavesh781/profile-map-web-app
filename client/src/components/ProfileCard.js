@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function ProfileCard({ profile, onDelete }) {
+function ProfileCard({ profile, onDelete, currentUser }) {
+  const isOwner = currentUser && profile.user === currentUser._id;
+
   return (
     <div className="col-md-4">
       <div className="card shadow-lg border-0 mb-4">
@@ -23,19 +25,23 @@ function ProfileCard({ profile, onDelete }) {
             View Details
           </Link>
 
-          <Link
-            to={`/edit/${profile._id}`}
-            className="btn btn-warning btn-sm ms-2"
-          >
-            Edit
-          </Link>
+          {isOwner && (
+            <>
+              <Link
+                to={`/edit/${profile._id}`}
+                className="btn btn-warning btn-sm ms-2"
+              >
+                Edit
+              </Link>
 
-          <button
-            className="btn btn-danger btn-sm ms-2"
-            onClick={() => onDelete(profile._id)}
-          >
-            Delete
-          </button>
+              <button
+                className="btn btn-danger btn-sm ms-2"
+                onClick={() => onDelete(profile._id)}
+              >
+                Delete
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

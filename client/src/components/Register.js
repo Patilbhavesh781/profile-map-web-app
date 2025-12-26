@@ -11,8 +11,11 @@ function Register({ setUser }) {
     e.preventDefault();
     try {
       const { data } = await registerUser(form);
+      // Save token and user info
       localStorage.setItem("token", data.token);
-      setUser({ id: data.userId, name: data.name });
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("userName", data.user.name);
+      setUser({ _id: data.user.id, name: data.user.name });
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");

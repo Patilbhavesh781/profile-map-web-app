@@ -1,55 +1,69 @@
 import express from "express";
 import Profile from "../models/Profile.js";
-import jwt from "jsonwebtoken";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "secretkey";
 
-// Middleware to verify token
-const auth = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-  if (!token) return res.status(401).json({ message: "No token, authorization denied" });
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.userId = decoded.id;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: "Token is not valid" });
-  }
-};
-
-// GET all profiles (optional: public)
+/* ===============================
+   GET ALL PROFILES
+================================ */
 router.get("/", async (req, res) => {
-  const profiles = await Profile.find();
+  const profiles = await Profile.find().sort({ createdAt: -1 });
   res.json(profiles);
 });
 
-// POST profile (only logged-in)
-router.post("/", auth, async (req, res) => {
-  const profile = new Profile({ ...req.body, user: req.userId });
-  await profile.save();
-  res.status(201).json(profile);
-});
-
-// PUT profile (only owner)
-router.put("/:id", auth, async (req, res) => {
+/* ===============================
+   GET SINGLE PROFILE
+================================ */
+router.get("/:id", async (req, res) => {
   const profile = await Profile.findById(req.params.id);
-  if (!profile) return res.status(404).json({ message: "Profile not found" });
-  if (profile.user.toString() !== req.userId)
-    return res.status(403).json({ message: "Not authorized" });
-
-  Object.assign(profile, req.body);
-  await profile.save();
+  if (!profile) return res.status(404).json({ message: "Not found" });
   res.json(profile);
 });
 
-// DELETE profile (only owner)
-router.delete("/:id", auth, async (req, res) => {
+/* ===============================
+   CREATE PROFILE (PROTECTED)
+================================ */
+router.post("/", authMiddleware, async (req, res) => {
+  try {
+    const profile = await Profile.create({
+      ...req.body,
+      user: req.userId, // 🔥 force owner
+    });
+
+    res.status(201).json(profile);
+  } catch (error) {
+    res.status(400).json({ message: "Failed to create profile" });
+  }
+});
+
+/* ===============================
+   UPDATE PROFILE (OWNER ONLY)
+================================ */
+router.put("/:id", authMiddleware, async (req, res) => {
   const profile = await Profile.findById(req.params.id);
-  if (!profile) return res.status(404).json({ message: "Profile not found" });
-  if (profile.user.toString() !== req.userId)
-    return res.status(403).json({ message: "Not authorized" });
+  if (!profile) return res.status(404).json({ message: "Not found" });
+
+  if (profile.user.toString() !== req.userId) {
+    return res.status(403).json({ message: "Not allowed" });
+  }
+
+  Object.assign(profile, req.body);
+  await profile.save();
+
+  res.json(profile);
+});
+
+/* ===============================
+   DELETE PROFILE (OWNER ONLY)
+================================ */
+router.delete("/:id", authMiddleware, async (req, res) => {
+  const profile = await Profile.findById(req.params.id);
+  if (!profile) return res.status(404).json({ message: "Not found" });
+
+  if (profile.user.toString() !== req.userId) {
+    return res.status(403).json({ message: "Not allowed" });
+  }
 
   await profile.deleteOne();
   res.json({ message: "Profile deleted" });
