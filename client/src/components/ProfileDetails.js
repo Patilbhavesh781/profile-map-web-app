@@ -9,22 +9,22 @@ function ProfileDetails() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const { data } = await getProfileById(id);
+        setProfile(data);
+      } catch (err) {
+        console.error(err);
+        setError("Profile not found");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfile();
   }, [id]);
-
-  const fetchProfile = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const { data } = await getProfileById(id);
-      setProfile(data);
-    } catch (err) {
-      console.error(err);
-      setError("Profile not found");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) return <h3 className="text-center mt-5">Loading...</h3>;
   if (error) return <h2 className="text-center text-danger">{error}</h2>;

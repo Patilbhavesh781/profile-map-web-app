@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/profileApi";
+import { toast } from "react-toastify";
 
 function Register({ setUser }) {
   const navigate = useNavigate();
@@ -9,23 +10,45 @@ function Register({ setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    if (!form.name || !form.email || !form.password) {
+      toast.warning("Please fill all fields");
+      return;
+    }
+
     try {
-      const { data } = await registerUser(form);
-      // Save token and user info
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.user.id);
-      localStorage.setItem("userName", data.user.name);
-      setUser({ _id: data.user.id, name: data.user.name });
-      navigate("/");
+      await registerUser(form);
+
+      toast.success("Registration successful 🎉 Please login");
+
+      // ❌ DO NOT AUTO LOGIN
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      setUser(null);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      const msg = err.response?.data?.message || "Registration failed";
+      setError(msg);
+
+      if (msg.toLowerCase().includes("already")) {
+        toast.error("User already exists");
+      } else {
+        toast.error(msg);
+      }
     }
   };
 
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Register</h2>
+
       {error && <p className="text-danger text-center">{error}</p>}
+
       <form onSubmit={handleSubmit} className="p-4 shadow rounded bg-light">
         <input
           type="text"
@@ -35,6 +58,7 @@ function Register({ setUser }) {
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
         />
+
         <input
           type="email"
           className="form-control mb-2"
@@ -43,6 +67,7 @@ function Register({ setUser }) {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           required
         />
+
         <input
           type="password"
           className="form-control mb-3"
@@ -51,7 +76,15 @@ function Register({ setUser }) {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           required
         />
+
         <button className="btn btn-success w-100">Register</button>
+
+        <div className="text-center mt-3">
+          <span>Already have an account? </span>
+          <Link to="/login" className="fw-bold text-decoration-none">
+            Login
+          </Link>
+        </div>
       </form>
     </div>
   );

@@ -6,6 +6,7 @@ import ProfileDetails from "./components/ProfileDetails";
 import AddEditProfile from "./components/AddEditProfile";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Navbar from "./components/Navbar";
 
 import {
   getProfiles,
@@ -65,25 +66,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="container mt-3 text-end">
-        {user ? (
-          <>
-            <span className="me-2">Logged in</span>
-            <button className="btn btn-sm btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <a href="/login" className="btn btn-sm btn-primary me-2">
-              Login
-            </a>
-            <a href="/register" className="btn btn-sm btn-success">
-              Register
-            </a>
-          </>
-        )}
-      </div>
+      <Navbar user={user} onLogout={handleLogout} />
 
       <Routes>
         <Route

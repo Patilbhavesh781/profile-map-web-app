@@ -1,13 +1,27 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ProfileCard from "./ProfileCard";
+import { toast } from "react-toastify";
 
 function ProfileList({ profiles, user, onDelete }) {
   const [search, setSearch] = useState("");
 
-  const filteredProfiles = profiles.filter(profile =>
-    profile.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProfiles = profiles.filter(
+  (profile) =>
+    profile?.name?.toLowerCase().includes(search.toLowerCase())
+);
+
+  /* ===============================
+     DELETE HANDLER WITH TOAST
+  ================================ */
+  const handleDelete = async (id) => {
+    try {
+      await onDelete(id);
+      toast.success("Profile deleted successfully 🗑️");
+    } catch (error) {
+      toast.error("Failed to delete profile ❌");
+    }
+  };
 
   return (
     <div className="container mt-4">
@@ -40,7 +54,7 @@ function ProfileList({ profiles, user, onDelete }) {
           <ProfileCard
             key={profile._id}
             profile={profile}
-            onDelete={onDelete}
+            onDelete={handleDelete}
             currentUser={user}
           />
         ))}

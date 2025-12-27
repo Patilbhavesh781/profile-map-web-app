@@ -22,15 +22,14 @@ router.get("/:id", async (req, res) => {
 });
 
 /* ===============================
-   CREATE PROFILE (PROTECTED)
+   CREATE PROFILE
 ================================ */
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const profile = await Profile.create({
       ...req.body,
-      user: req.userId, // 🔥 force owner
+      user: req.userId,
     });
-
     res.status(201).json(profile);
   } catch (error) {
     res.status(400).json({ message: "Failed to create profile" });
@@ -38,35 +37,47 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 /* ===============================
-   UPDATE PROFILE (OWNER ONLY)
+   UPDATE PROFILE (FIXED ✅)
 ================================ */
 router.put("/:id", authMiddleware, async (req, res) => {
-  const profile = await Profile.findById(req.params.id);
-  if (!profile) return res.status(404).json({ message: "Not found" });
+  try {
+    const profile = await Profile.findById(req.params.id);
+    if (!profile) return res.status(404).json({ message: "Not found" });
 
-  if (profile.user.toString() !== req.userId) {
-    return res.status(403).json({ message: "Not allowed" });
+    if (profile.user.toString() !== req.userId) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    const updatedProfile = await Profile.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },   // ✅ SAFE UPDATE
+      { new: true, runValidators: true }
+    );
+
+    res.json(updatedProfile);
+  } catch (error) {
+    console.error("UPDATE ERROR:", error);
+    res.status(500).json({ message: "Failed to update profile" });
   }
-
-  Object.assign(profile, req.body);
-  await profile.save();
-
-  res.json(profile);
 });
 
 /* ===============================
-   DELETE PROFILE (OWNER ONLY)
+   DELETE PROFILE
 ================================ */
 router.delete("/:id", authMiddleware, async (req, res) => {
-  const profile = await Profile.findById(req.params.id);
-  if (!profile) return res.status(404).json({ message: "Not found" });
+  try {
+    const profile = await Profile.findById(req.params.id);
+    if (!profile) return res.status(404).json({ message: "Not found" });
 
-  if (profile.user.toString() !== req.userId) {
-    return res.status(403).json({ message: "Not allowed" });
+    if (profile.user.toString() !== req.userId) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    await profile.deleteOne();
+    res.json({ message: "Profile deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete profile" });
   }
-
-  await profile.deleteOne();
-  res.json({ message: "Profile deleted" });
 });
 
 export default router;

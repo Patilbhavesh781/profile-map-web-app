@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/profileApi";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 function Login({ setUser }) {
   const navigate = useNavigate();
@@ -9,16 +11,28 @@ function Login({ setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    if (!form.email || !form.password) {
+      toast.warning("Please fill all fields");
+      return;
+    }
+
     try {
       const { data } = await loginUser(form);
-      // Save token and user info
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userName", data.user.name);
+
       setUser({ _id: data.user.id, name: data.user.name });
+
+      toast.success("Login successful 🎉");
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const msg = err.response?.data?.message || "Login failed";
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -44,6 +58,12 @@ function Login({ setUser }) {
           required
         />
         <button className="btn btn-primary w-100">Login</button>
+        <div className="text-center mt-3">
+          <span>New user? </span>
+          <Link to="/register" className="text-decoration-none fw-bold">
+            Register here
+          </Link>
+        </div>
       </form>
     </div>
   );
