@@ -4,7 +4,6 @@ const API = axios.create({
   baseURL: "https://profile-map.onrender.com/api",
 });
 
-
 /* ===============================
    ATTACH TOKEN TO EVERY REQUEST
 ================================ */
@@ -23,9 +22,11 @@ export const registerUser = (data) => API.post("/auth/register", data);
 export const loginUser = (data) => API.post("/auth/login", data);
 
 /* ===============================
-   PROFILES
+   PROFILES (PAGINATION + FILTERS)
 ================================ */
-export const getProfiles = () => API.get("/profiles");
+export const getProfiles = (params) =>
+  API.get("/profiles", { params });
+
 export const getProfileById = (id) => API.get(`/profiles/${id}`);
 export const createProfile = (data) => API.post("/profiles", data);
 export const updateProfile = (id, data) => API.put(`/profiles/${id}`, data);

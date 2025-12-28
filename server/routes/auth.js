@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
     });
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -40,10 +40,10 @@ router.post("/register", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
     res.status(500).json({ message: "Registration failed" });
   }
 });
@@ -56,15 +56,13 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match)
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!match) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -74,10 +72,10 @@ router.post("/login", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {
-    console.error("LOGIN ERROR:", error);
     res.status(500).json({ message: "Login failed" });
   }
 });

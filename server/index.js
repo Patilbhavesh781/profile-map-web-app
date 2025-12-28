@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import profileRoutes from "./routes/profiles.js";
 
@@ -19,6 +20,7 @@ app.use(express.json());
 /* ===============================
    ROUTES
 ================================ */
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profiles", profileRoutes);
 

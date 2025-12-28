@@ -7,10 +7,91 @@ const router = express.Router();
 /* ===============================
    GET ALL PROFILES
 ================================ */
+/* ===============================
+   GET ALL PROFILES (PAGINATION + FILTERS)
+================================ */
 router.get("/", async (req, res) => {
-  const profiles = await Profile.find().sort({ createdAt: -1 });
-  res.json(profiles);
+  try {
+    const {
+      page = 1,
+      limit = 6,
+      search = "",
+      minAge,
+      maxAge,
+      minSalary,
+      maxSalary,
+      job,
+      location,
+      sort = "latest",
+    } = req.query;
+
+    const query = {};
+
+    /* 🔍 SEARCH */
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { job: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    /* 🎯 AGE FILTER */
+    if (minAge || maxAge) {
+      query.age = {};
+      if (minAge) query.age.$gte = Number(minAge);
+      if (maxAge) query.age.$lte = Number(maxAge);
+    }
+
+    /* 💰 SALARY FILTER (SAFE) */
+    if (minSalary || maxSalary) {
+      query.salary = { $type: "number" };
+      if (minSalary) query.salary.$gte = Number(minSalary);
+      if (maxSalary) query.salary.$lte = Number(maxSalary);
+    }
+
+    /* 💼 JOB */
+    if (job) {
+      query.job = { $regex: job, $options: "i" };
+    }
+
+    /* 📍 LOCATION */
+    if (location) {
+      query.location = { $regex: location, $options: "i" };
+    }
+
+    /* 🔃 SORTING */
+    let sortOption = { createdAt: -1 };
+    if (sort === "ageAsc") sortOption = { age: 1 };
+    if (sort === "ageDesc") sortOption = { age: -1 };
+    if (sort === "salaryAsc") sortOption = { salary: 1 };
+    if (sort === "salaryDesc") sortOption = { salary: -1 };
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [profiles, total] = await Promise.all([
+      Profile.find(query)
+        .sort(sortOption)
+        .skip(skip)
+        .limit(Number(limit)),
+      Profile.countDocuments(query),
+    ]);
+
+    res.json({
+      profiles,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("FETCH PROFILES ERROR:", error);
+    res.status(500).json({ message: "Failed to fetch profiles" });
+  }
 });
+
+
 
 /* ===============================
    GET SINGLE PROFILE

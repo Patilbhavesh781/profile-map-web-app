@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import AdminDashboard from "./components/AdminDashboard";
 import ProfileList from "./components/ProfileList";
 import ProfileDetails from "./components/ProfileDetails";
 import AddEditProfile from "./components/AddEditProfile";
@@ -91,6 +92,17 @@ function App() {
           path="/edit/:id"
           element={user ? <AddEditProfile profiles={profiles} onSubmit={handleUpdate} /> : <Navigate to="/login" />}
         />
+        <Route
+          path="/admin"
+          element={
+            user && localStorage.getItem("userRole") === "admin" ? (
+              <AdminDashboard />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register setUser={setUser} />} />
       </Routes>

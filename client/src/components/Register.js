@@ -5,7 +5,11 @@ import { toast } from "react-toastify";
 
 function Register({ setUser }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
@@ -22,10 +26,14 @@ function Register({ setUser }) {
 
       toast.success("Registration successful 🎉 Please login");
 
-      // ❌ DO NOT AUTO LOGIN
+      /* ===============================
+         CLEAR AUTH STATE
+      ================================ */
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
       localStorage.removeItem("userName");
+      localStorage.removeItem("userRole");
+
       setUser(null);
 
       setTimeout(() => {
@@ -73,7 +81,9 @@ function Register({ setUser }) {
           className="form-control mb-3"
           placeholder="Password"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, password: e.target.value })
+          }
           required
         />
 
