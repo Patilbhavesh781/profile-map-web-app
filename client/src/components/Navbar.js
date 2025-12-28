@@ -6,7 +6,7 @@ function Navbar({ user, onLogout }) {
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
       <div className="container">
         <Link className="navbar-brand fw-bold text-primary" to="/">
-          ProfileMap
+          <img width={30} src={"https://res.cloudinary.com/drf2rliqg/image/upload/v1766898854/ywfslv71c85hvbulumt0.png"} alt="img"/> ProfileMap
         </Link>
 
         <div className="ms-auto">
