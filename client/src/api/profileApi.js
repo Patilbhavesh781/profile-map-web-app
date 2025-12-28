@@ -1,8 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://profile-map.onrender.com/api",
 });
+
 
 /* ===============================
    ATTACH TOKEN TO EVERY REQUEST
