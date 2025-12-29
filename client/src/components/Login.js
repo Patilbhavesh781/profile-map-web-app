@@ -42,11 +42,7 @@ function Login({ setUser }) {
       /* ===============================
          REDIRECT
       ================================ */
-      if (data.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      navigate(data.user.role === "admin" ? "/admin" : "/");
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
       setError(msg);
@@ -72,12 +68,22 @@ function Login({ setUser }) {
 
         <input
           type="password"
-          className="form-control mb-3"
+          className="form-control mb-2"
           placeholder="Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           required
         />
+
+        {/* 🔐 FORGOT PASSWORD */}
+        <div className="text-end mb-3">
+          <Link
+            to="/forgot-password"
+            className="text-decoration-none small"
+          >
+            Forgot password?
+          </Link>
+        </div>
 
         <button className="btn btn-primary w-100">Login</button>
 

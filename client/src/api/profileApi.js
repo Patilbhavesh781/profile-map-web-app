@@ -21,6 +21,18 @@ API.interceptors.request.use((req) => {
 export const registerUser = (data) => API.post("/auth/register", data);
 export const loginUser = (data) => API.post("/auth/login", data);
 
+/* 🔐 FORGOT PASSWORD FLOW */
+export const forgotPassword = (email) =>
+  API.post("/auth/forgot-password", { email });
+
+export const resetPassword = (data) =>
+  API.post("/auth/reset-password", data);
+
+/* 🔐 EMAIL VERIFICATION */
+export const verifyEmail = (data) =>
+  API.post("/auth/verify-email", data);
+
+
 /* ===============================
    PROFILES (PAGINATION + FILTERS)
 ================================ */

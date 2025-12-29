@@ -9,6 +9,12 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Navbar from "./components/Navbar";
 
+/* 🔐 NEW COMPONENTS */
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+import VerifyEmail from "./components/VerifyEmail";
+
+
 import {
   getProfiles,
   createProfile,
@@ -24,8 +30,11 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // You could fetch user data from API here if needed
-      setUser({ _id: localStorage.getItem("userId") });
+      setUser({
+        _id: localStorage.getItem("userId"),
+        name: localStorage.getItem("userName"),
+        role: localStorage.getItem("userRole"),
+      });
     }
     fetchProfiles();
   }, []);
@@ -58,8 +67,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    localStorage.clear();
     setUser(null);
   };
 
@@ -70,20 +78,23 @@ function App() {
       <Navbar user={user} onLogout={handleLogout} />
 
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProfileList
-              profiles={profiles}
-              user={user}
-              onDelete={handleDelete}
-            />
-          }
-        />
-        <Route
-          path="/profile/:id"
-          element={<ProfileDetails profiles={profiles} />}
-        />
+        {/* PUBLIC */}
+        <Route path="/" element={<ProfileList user={user} onDelete={handleDelete} />} />
+        <Route path="/profile/:id" element={<ProfileDetails profiles={profiles} />} />
+
+        {/* AUTH */}
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/register" element={<Register setUser={setUser} />} />
+
+        {/* verify email */}
+        <Route path="/verify-email" element={<VerifyEmail />} />
+
+
+        {/* 🔐 FORGOT PASSWORD */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* USER */}
         <Route
           path="/add"
           element={user ? <AddEditProfile onSubmit={handleAdd} /> : <Navigate to="/login" />}
@@ -92,19 +103,14 @@ function App() {
           path="/edit/:id"
           element={user ? <AddEditProfile profiles={profiles} onSubmit={handleUpdate} /> : <Navigate to="/login" />}
         />
+
+        {/* ADMIN */}
         <Route
           path="/admin"
           element={
-            user && localStorage.getItem("userRole") === "admin" ? (
-              <AdminDashboard />
-            ) : (
-              <Navigate to="/" />
-            )
+            user && user.role === "admin" ? <AdminDashboard /> : <Navigate to="/" />
           }
         />
-
-        <Route path="/login" element={<Login setUser={setUser} />} />
-        <Route path="/register" element={<Register setUser={setUser} />} />
       </Routes>
     </BrowserRouter>
   );
