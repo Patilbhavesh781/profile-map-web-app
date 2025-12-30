@@ -1,17 +1,11 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"ProfileMap" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "ProfileMap <onboarding@resend.dev>", // default verified sender
       to,
       subject,
       html,
