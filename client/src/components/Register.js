@@ -5,11 +5,14 @@ import { toast } from "react-toastify";
 
 function Register() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +22,11 @@ function Register() {
       return;
     }
 
+    if (loading) return; // 🛑 extra safety
+
     try {
+      setLoading(true);
+
       await registerUser(form);
 
       toast.success("Verification code sent to email 📧");
@@ -30,6 +37,8 @@ function Register() {
     } catch (err) {
       const msg = err.response?.data?.message || "Registration failed";
       toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +52,7 @@ function Register() {
           placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
+          disabled={loading}
         />
 
         <input
@@ -51,6 +61,7 @@ function Register() {
           placeholder="Email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
+          disabled={loading}
         />
 
         <input
@@ -59,9 +70,15 @@ function Register() {
           placeholder="Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
+          disabled={loading}
         />
 
-        <button className="btn btn-success w-100">Register</button>
+        <button
+          className="btn btn-success w-100"
+          disabled={loading}
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
 
         <div className="text-center mt-3">
           <Link to="/login">Already have an account?</Link>
