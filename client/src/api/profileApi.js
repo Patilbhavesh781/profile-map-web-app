@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://profile-map.onrender.com/api",
+  baseURL: "https://profile-map-web-app.vercel.app/api",
 });
 
 /* ===============================

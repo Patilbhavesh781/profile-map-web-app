@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "../routes/auth.js";
+import adminRoutes from "../routes/admin.js";
 import profileRoutes from "../routes/profiles.js";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 /* ===============================
    ROUTES
 ================================ */
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profiles", profileRoutes);
 
